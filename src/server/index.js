@@ -1,4 +1,5 @@
 const express = require('express');
+const bodyParser = require("body-parser");
 const os = require('os');
 
 const app = express();
@@ -6,13 +7,11 @@ const Authen = require('./authen');
 
 const authen = new Authen();
 
-const md5 = require('md5')
-// authen.login("admin", md5("Vity@123"))
-//     .then(value => {
-//         console.log(value);
-//     })
-app.use(express.static('dist'));
+const Item = require('./item');
+const ItemManager = new Item();
 
+app.use(express.static('dist'));
+app.use(bodyParser.json({ limit: "50mb" }));
 app.listen(8080, () => console.log('Listening on port 8080!'));
 
 app.get('/api/login/:username/:pass', (req, res) => {
@@ -27,4 +26,24 @@ app.get('/api/validate/:sessionId', (req, res) => {
         .then((value) => {
             res.send(value);
         })
+})
+
+app.get('/api/getItems', (req, res) => {
+    ItemManager.getItems()
+        .then(items => {
+            res.send(items);
+        })
+})
+app.put('/api/addItem', (req, res) => {
+    let item = req.body;
+    console.log(req.body);
+    ItemManager.addOrUpdateItem(item)
+        .then(items => res.send(items));
+})
+
+app.delete('/api/deleteItem', (req, res) => {
+    let item = req.body;
+    console.log(req.body);
+    ItemManager.deleteItem(item)
+        .then(items => res.send(items));
 })

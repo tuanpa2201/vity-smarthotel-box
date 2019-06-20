@@ -39,45 +39,68 @@ import {
 module.exports = class DefaultLayout extends Component {
     constructor() {
         super();
+        this.newItem ={
+            name: '',
+            channel: '',
+            command_ga: '',
+            feedback_ga: ''
+        }
         this.state = {
             isOpenDetail: false,
-            selectedItemIndex: -1,
+            editItem: this.newItem,
             items : [
-                {
-                    name: "Switch 01",
-                    channel: "Switch 01",
-                    command_ga: '0/0/1',
-                    feedback_ga: '0/1/1',
-                },
-                {
-                    name: "Switch 02",
-                    channel: "Switch 02",
-                    command_ga: '0/0/2',
-                    feedback_ga: '0/1/2',
-                },
-                {
-                    name: "Switch 03",
-                    channel: "Switch 03",
-                    command_ga: '0/0/3',
-                    feedback_ga: '0/1/3',
-                },
-                {
-                    name: "Switch 04",
-                    channel: "Switch 04",
-                    command_ga: '0/0/4',
-                    feedback_ga: '0/1/4',
-                }
+                // {
+                //     name: "Switch 01",
+                //     channel: "Switch 01",
+                //     command_ga: '0/0/1',
+                //     feedback_ga: '0/1/1',
+                // },
+                // {
+                //     name: "Switch 02",
+                //     channel: "Switch 02",
+                //     command_ga: '0/0/2',
+                //     feedback_ga: '0/1/2',
+                // },
+                // {
+                //     name: "Switch 03",
+                //     channel: "Switch 03",
+                //     command_ga: '0/0/3',
+                //     feedback_ga: '0/1/3',
+                // },
+                // {
+                //     name: "Switch 04",
+                //     channel: "Switch 04",
+                //     command_ga: '0/0/4',
+                //     feedback_ga: '0/1/4',
+                // }
             ]
         }
+        this.loadItems();
+    }
+    loadItems() {
+        fetch("/api/getItems")
+            .then(res => res.json())
+            .then(items => {
+                console.log(items);
+                this.setState({items: items});
+            })
     }
     onEdit = (index) => () => {
-        this.setState({selectedItemIndex: index});
+        this.setState({editItem: this.state.items[index]});
         this.toggleOpenDetail();
     }
 
     onDelete = (index) => () => {
         if (confirm("Are you sure?")) {
-
+            fetch('/api/deleteItem', {
+                method: 'DELETE',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(this.state.items[index])
+                })
+                .then(res => res.json())
+                .then(items => {
+                    this.setState({items, isOpenDetail: false, editItem: this.newItem});
+                })
         }
     }
 
@@ -131,24 +154,40 @@ module.exports = class DefaultLayout extends Component {
                 <ModalBody>
                     <FormGroup>
                         <Label>Item Name</Label>
-                        <Input value={this.state.selectedItemIndex > -1 ? this.state.items[this.state.selectedItemIndex].name: ''}></Input>
+                        <Input value={this.state.editItem.name} onChange={this.onChangeItem("name")}></Input>
                         <Label>Channel</Label>
-                        <Input value={this.state.selectedItemIndex > -1 ? this.state.items[this.state.selectedItemIndex].channel: ''}></Input>
+                        <Input value={this.state.editItem.channel} onChange={this.onChangeItem("channel")}></Input>
                         <Label>Command Group Address</Label>
-                        <Input value={this.state.selectedItemIndex > -1 ? this.state.items[this.state.selectedItemIndex].command_ga: ''}></Input>
+                        <Input value={this.state.editItem.command_ga} onChange={this.onChangeItem("command_ga")}></Input>
                         <Label>Feedback Group Address</Label>
-                        <Input value={this.state.selectedItemIndex > -1 ? this.state.items[this.state.selectedItemIndex].feedback_ga: ''}></Input>
+                        <Input value={this.state.editItem.feedback_ga} onChange={this.onChangeItem("feedback_ga")}></Input>
                     </FormGroup>
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="success">Save</Button>
+                    <Button color="success" onClick={this.onClickSave.bind(this)}>Save</Button>
                     <Button onClick={this.toggleOpenDetail.bind(this)}>Cancel</Button>
                 </ModalFooter>
             </Modal>
         </div>
     }
+    onClickSave = () => {
+        fetch('/api/addItem', {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(this.state.editItem)
+            })
+            .then(res => res.json())
+            .then(items => {
+                this.setState({items, isOpenDetail: false, editItem: this.newItem});
+            })
+    }
+    onChangeItem = (name) => (event) =>{
+        let editItem = this.state.editItem;
+        editItem[name] = event.target.value;
+        this.setState({editItem});
+    }
     onClickAddItem = () => {
-        this.setState({selectedItemIndex: -1});
+        this.setState({editItem: this.newItem});
         this.toggleOpenDetail();
     }
     toggleOpenDetail() {
