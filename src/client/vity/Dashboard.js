@@ -36,7 +36,7 @@ import {
   } from 'reactstrap';
   import { AppSwitch } from '@coreui/react'
 
-module.exports = class DefaultLayout extends Component {
+module.exports = class Dashboard extends Component {
     constructor() {
         super();
         this.newItem ={
@@ -48,34 +48,19 @@ module.exports = class DefaultLayout extends Component {
         this.state = {
             isOpenDetail: false,
             editItem: this.newItem,
-            items : [
-                // {
-                //     name: "Switch 01",
-                //     channel: "Switch 01",
-                //     command_ga: '0/0/1',
-                //     feedback_ga: '0/1/1',
-                // },
-                // {
-                //     name: "Switch 02",
-                //     channel: "Switch 02",
-                //     command_ga: '0/0/2',
-                //     feedback_ga: '0/1/2',
-                // },
-                // {
-                //     name: "Switch 03",
-                //     channel: "Switch 03",
-                //     command_ga: '0/0/3',
-                //     feedback_ga: '0/1/3',
-                // },
-                // {
-                //     name: "Switch 04",
-                //     channel: "Switch 04",
-                //     command_ga: '0/0/4',
-                //     feedback_ga: '0/1/4',
-                // }
-            ]
+            items : [],
+            itemsStatus: {}
         }
         this.loadItems();
+        
+    }
+    loadItemsStatus() {
+        fetch('/api/status')
+            .then(res => res.json())
+            .then((res) => {
+                console.log(res);
+                this.setState({itemsStatus: res});
+            })
     }
     loadItems() {
         fetch("/api/getItems")
@@ -85,6 +70,17 @@ module.exports = class DefaultLayout extends Component {
                 this.setState({items: items});
             })
     }
+
+    componentDidMount() {
+        this.timer = setInterval(() => {
+            this.loadItemsStatus();
+        }, 1000)
+    }
+
+    componentWillUnmount() {
+        window.clearInterval(this.timer);
+    }
+
     onEdit = (index) => () => {
         this.setState({editItem: this.state.items[index]});
         this.toggleOpenDetail();
@@ -104,6 +100,15 @@ module.exports = class DefaultLayout extends Component {
         }
     }
 
+    toggleItemStatus = (index) => () => {
+        console.log("Toggle", index);
+        fetch('/api/control', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({itemName: this.state.items[index].name, value: this.state.itemsStatus[this.state.items[index].name] == 'ON' ? "OFF" : 'ON'})
+        })
+    }
+
     render() {
         let tableBody = [];
         for (let i = 0; i < this.state.items.length; i++) {
@@ -113,7 +118,9 @@ module.exports = class DefaultLayout extends Component {
                 <td>{item.channel}</td>
                 <td>{item.command_ga}</td>
                 <td>{item.feedback_ga}</td>
-                <td><AppSwitch className={'mx-1 switch-lg'} variant={'pill'} color={'success'} outline={'alt'} label checked /></td>
+                <td>{this.state.itemsStatus[item.name] == 'ON' ? 
+                <AppSwitch className={'mx-1 switch-lg'} variant={'pill'} color={'success'} outline={'alt'} label checked onClick={this.toggleItemStatus(i)}/>: 
+                <AppSwitch className={'mx-1 switch-lg'} variant={'pill'} color={'success'} outline={'alt'} label onClick={this.toggleItemStatus(i)}/>}</td>
                 <td><Button color="primary" onClick={this.onEdit(i)}>Edit</Button> <Button onClick={this.onDelete(i)} color="Danger">Delete</Button></td>
             </tr>
             tableBody.push(row);

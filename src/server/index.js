@@ -10,6 +10,9 @@ const authen = new Authen();
 const Item = require('./item');
 const ItemManager = new Item();
 
+const KNXConnectorClass = require('./knxconnector');
+const KNXConnector = new KNXConnectorClass(ItemManager);
+
 app.use(express.static('dist'));
 app.use(bodyParser.json({ limit: "50mb" }));
 app.listen(8080, () => console.log('Listening on port 8080!'));
@@ -43,7 +46,30 @@ app.put('/api/addItem', (req, res) => {
 
 app.delete('/api/deleteItem', (req, res) => {
     let item = req.body;
-    console.log(req.body);
     ItemManager.deleteItem(item)
         .then(items => res.send(items));
+})
+
+app.post('/api/control', (req, res) => {
+    let data = req.body;
+    ItemManager.getItemByName(data.itemName)
+        .then(item => {
+            if (!item) {
+                res.send("Item not found")
+            } else {
+                KNXConnector.setValue(item.command_ga, data.value == 'ON' ? 1 : 0);
+                res.send("OK");
+            }
+        })
+})
+
+app.get('/api/status/:itemName', (req, res) => {
+    let item = req.params.itemName;
+    if (item) {
+        res.send(ItemManager.getItemStatusByName(item))
+    }
+});
+
+app.get('/api/status', (req, res) => {
+    res.send(ItemManager.statusByName);
 })

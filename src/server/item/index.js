@@ -1,8 +1,8 @@
 const storage = require('node-persist');
-var storageSession = storage.create({dir: './sessionDir'});
 module.exports = class ItemManager {
     constructor() {
-        this.initStorage
+        this.initStorage;
+        this.statusByName = {};
     }
     async initStorage() {
         await storage.init();
@@ -14,6 +14,27 @@ module.exports = class ItemManager {
             await storage.setItem("Items", items);
         }
         return items;
+    }
+    async getItemByName(name) {
+        let items = await this.getItems();
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].name == name) {
+                return items[i];
+            }
+        }
+        return undefined;
+    }
+    async getItemByFeedbackGA(ga) {
+        let items = await this.getItems();
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].feedback_ga == ga) {
+                return items[i];
+            }
+        }
+        return undefined;
+    }
+    getItemStatusByName(name) {
+        return this.statusByName[name];
     }
     async addOrUpdateItem(item) {
         let items = await this.getItems();
