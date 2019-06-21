@@ -14,6 +14,7 @@ import {
     // DropdownToggle,
     // Fade,
     Form,
+    FormText,
     FormGroup,
     // FormText,
     // FormFeedback,
@@ -34,7 +35,34 @@ import {
     Table,
     
   } from 'reactstrap';
+import MD5 from 'md5'
 module.exports = class ChangePassword extends Component {
+    constructor() {
+        super();
+        this.state = {
+            currentPass: '',
+            newPass: '',
+            reNewPass: ''
+        }
+    }
+    onChange = (name) => (event) =>{
+        this.setState({[name]: event.target.value});
+    }
+    onClickSave = () => {
+        if (this.state.newPass != this.state.reNewPass) {
+            alert("New password not match!");
+            return;
+        }
+        fetch(`/api/changepass/admin/${MD5(this.state.currentPass)}/${MD5(this.state.newPass)}`, {method: 'POST'})
+            .then(res => res.text())
+            .then(resText => {
+                if (resText == 'ok') {
+                    alert("Password updated!");
+                } else {
+                    alert("ERROR");
+                }
+            })
+    }
     render() {
         return <div className="animated fadeIn">
             <Row>
@@ -46,16 +74,16 @@ module.exports = class ChangePassword extends Component {
                         <CardBody>
                             <FormGroup>
                                 <Label>Current Password</Label>
-                                <Input></Input>
+                                <Input type="password" value={this.state.currentPass} onChange={this.onChange('currentPass')}></Input>
                                 <Label>New Password</Label>
-                                <Input></Input>
+                                <Input  type="password" value={this.state.newPass} onChange={this.onChange('newPass')}></Input>
                                 <Label>Re-type New Password</Label>
-                                <Input></Input>
+                                <Input  type="password" value={this.state.reNewPass} onChange={this.onChange('reNewPass')}></Input>
+                                <FormText color="muted" hidden={this.state.newPass == this.state.reNewPass}>New pass not match!</FormText>
                             </FormGroup>
                         </CardBody>
                         <CardFooter>
-                            <Button color="primary">Save</Button>
-                            <Button color="danger" style={{marginLeft: '10px'}}>TEST</Button>
+                            <Button color="primary" onClick={this.onClickSave.bind(this)}>Save</Button>
                         </CardFooter>
                     </Card>
                 </Col>

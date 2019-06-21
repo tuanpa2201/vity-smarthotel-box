@@ -35,6 +35,12 @@ import {
     
   } from 'reactstrap';
 module.exports = class Setting extends Component {
+    constructor() {
+        super();
+        this.state = {
+            
+        }
+    }
     render() {
         return <div className="animated fadeIn">
             <Row>
@@ -49,7 +55,7 @@ module.exports = class Setting extends Component {
                                 <Input></Input>
                                 <Label>BOX CODE</Label>
                                 <Input></Input>
-                                <Label>PASSCOED</Label>
+                                <Label>PASSCODE</Label>
                                 <Input></Input>
                             </FormGroup>
                         </CardBody>

@@ -24,6 +24,13 @@ app.get('/api/login/:username/:pass', (req, res) => {
         })
 });
 
+app.post('/api/changepass/:username/:currentpass/:newpass', (req, res) => {
+    authen.changePassword(req.params.username, req.params.currentpass, req.params.newpass)
+        .then((value) => {
+            res.send(value);
+        })
+});
+
 app.get('/api/validate/:sessionId', (req, res) => {
     authen.validate(req.params.sessionId)
         .then((value) => {

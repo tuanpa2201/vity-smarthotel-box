@@ -32,6 +32,27 @@ module.exports = class Authen {
         }
     }
 
+    async changePassword(username, currentPass, newPass) {
+        let users = await storage.getItem("users");
+        if (!users) {
+            users = {
+                admin: {
+                    pass: md5("Vity@123"),
+                    type: "admin"
+                }
+            };
+            await storage.setItem("users", users);
+        }
+        console.log(users[username].pass, currentPass, newPass, users[username].pass == currentPass);
+        if (users[username] && (users[username].pass == currentPass)) {
+            users[username].pass = newPass;
+            await storage.setItem('users', users);
+            return 'ok';
+        } else {
+            return "error";
+        }
+    }
+
     async validate(sessionId) {
         let type = storageSession.getItem(sessionId);
         if (!type) {
