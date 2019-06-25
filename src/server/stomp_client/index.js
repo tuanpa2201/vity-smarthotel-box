@@ -1,4 +1,6 @@
 var Stomp = require('@stomp/stompjs');
+const Setting = require('../setting');
+const setting = new Setting();
 
 module.exports = class StompClient {
     connect() {
@@ -23,17 +25,19 @@ module.exports = class StompClient {
             heartbeatOutgoing: 4000,
         });
         this.client.activate();
-        this.client.onConnect = (frame) => {
-            this.client.subscribe(`/device/${'AKGR'}/${'H001'}/token`, (res) => {
+        this.client.onConnect = async (frame) => {
+            let settingData = await setting.getSetting();
+            this.client.subscribe(`/device/${settingData.hotelCode}/${settingData.hubCode}/token`, (res) => {
                 this.client.subscribe(`/device/${res.body}/reload`, (res) => {
+                    
                     console.log("Reload config", res.body);
                 });
                 this.client.subscribe(`/device/${res.body}/control`, (res) => {
                     console.log("Control", res.body);
                 });
-                this.client.publish({destination: `/horeca/device/${res.body}/reload`, body: JSON.stringify({ "username": "AKGR/H001", "passcode": "123456" })})
+                // this.client.publish({destination: `/horeca/device/${res.body}/reload`, body: JSON.stringify({ "username": `AKGR/H001`, "passcode": "123456" })})
             })
-            this.client.publish({destination: '/horeca/device/authenticate', body: JSON.stringify({ "username": "AKGR/H001", "passcode": "123456" })})
+            this.client.publish({destination: '/horeca/device/authenticate', body: JSON.stringify({ "username": `${settingData.hotelCode}/${settingData.hubCode}`, "passcode": "123456" })})
         }
 
         this.client.onStompError =  (frame) => {

@@ -18,6 +18,9 @@ const StompClient = require('./stomp_client');
 const stompClient = new StompClient();
 stompClient.connect();
 
+const Setting = require('./setting');
+const setting = new Setting();
+
 app.use(express.static('dist'));
 app.use(bodyParser.json({ limit: "50mb" }));
 app.listen(8080, () => console.log('Listening on port 8080!'));
@@ -51,7 +54,6 @@ app.get('/api/getItems', (req, res) => {
 })
 app.put('/api/addItem', (req, res) => {
     let item = req.body;
-    console.log(req.body);
     ItemManager.addOrUpdateItem(item)
         .then(items => res.send(items));
 })
@@ -84,4 +86,17 @@ app.get('/api/status/:itemName', (req, res) => {
 
 app.get('/api/status', (req, res) => {
     res.send(ItemManager.statusByName);
+})
+app.get('/api/setting', (req, res) => {
+    setting.getSetting()
+        .then((value) => {
+            res.send(value);
+        })
+})
+app.post('/api/setting/update', (req, res) => {
+    let data = req.body;
+    setting.setSetting(data)
+        .then((value) => {
+            res.send(value);
+        })
 })
