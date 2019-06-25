@@ -5,19 +5,23 @@ module.exports = class KNXConnector {
         this.ItemManager = ItemManager;
         this.forceStop = false;
         this.isConnect = false;
-        process.on('uncaughtException', (err) => {
-            console.log(err);
-            this.disconnect();
-        })
-        process.on('exit', (code) => {
-            this.disconnect();
-        })
+        // process.on('uncaughtException', (err) => {
+        //     console.log(err);
+        //     this.disconnect();
+        // })
+        // process.on('exit', (code) => {
+        //     this.disconnect();
+        // })
         process.on('SIGINT', () => {
             this.disconnect();
+            
+            setTimeout(() => {
+                process.exit();
+            }, 100);
         })
-        process.on('SIGTERM', () => {
-            this.disconnect();
-        })
+        // process.on('SIGTERM', () => {
+        //     this.disconnect();
+        // })
         process.once('SIGUSR2',() => {
             console.log("Nodemon Restart")
             this.disconnect();

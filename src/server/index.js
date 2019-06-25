@@ -13,6 +13,11 @@ const ItemManager = new Item();
 const KNXConnectorClass = require('./knxconnector');
 const KNXConnector = new KNXConnectorClass(ItemManager);
 
+
+const StompClient = require('./stomp_client');
+const stompClient = new StompClient();
+stompClient.connect();
+
 app.use(express.static('dist'));
 app.use(bodyParser.json({ limit: "50mb" }));
 app.listen(8080, () => console.log('Listening on port 8080!'));
