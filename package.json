@@ -40,6 +40,7 @@
     "react-router-dom": "^4.3.1",
     "react-test-renderer": "^16.4.2",
     "reactstrap": "^6.4.0",
+    "request": "^2.88.0",
     "simple-line-icons": "^2.4.1",
     "text-encoding": "^0.7.0",
     "uuid": "^3.3.2",

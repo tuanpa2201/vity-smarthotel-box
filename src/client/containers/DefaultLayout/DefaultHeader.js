@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { AppAsideToggler, AppHeaderDropdown, AppNavbarBrand, AppSidebarToggler } from '@coreui/react';
 import logo from '../../assets/img/brand/logo.svg'
 import sygnet from '../../assets/img/brand/sygnet.svg'
+import Cookies from 'js-cookie';
 
 const propTypes = {
   children: PropTypes.node,
@@ -52,7 +53,10 @@ class DefaultHeader extends Component {
             <DropdownToggle nav>
               <img src={'assets/img/avatars/6.jpg'} className="img-avatar" alt="admin" />
             </DropdownToggle>
-            <DropdownMenu right style={{ right: 'auto' }}>
+            <DropdownMenu right style={{ right: 'auto' }} onClick={(() => {
+              Cookies.remove("sessionId");
+              window.location.href = '/';
+            }).bind(this)}>
               {/* <DropdownItem header tag="div" className="text-center"><strong>Account</strong></DropdownItem>
               <DropdownItem><i className="fa fa-bell-o"></i> Updates<Badge color="info">42</Badge></DropdownItem>
               <DropdownItem><i className="fa fa-envelope-o"></i> Messages<Badge color="success">42</Badge></DropdownItem>

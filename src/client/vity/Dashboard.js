@@ -49,16 +49,32 @@ module.exports = class Dashboard extends Component {
             isOpenDetail: false,
             editItem: this.newItem,
             items : [],
-            itemsStatus: {}
+            itemsStatus: {},
+            channels: [],
+            channelMap : {}
         }
         this.loadItems();
+        this.loadChannels();
+    }
+    loadChannels() {
+        fetch('/api/channels')
+            .then(res => res.json())
+            .then((data) => {
+                
+                let channelMap = {};
+                if (data.channels) {
+                    for (let i = 0; i < data.channels.length; i++)
+                        channelMap[data.channels[i].id] = data.channels[i].name;
+                }
+                this.setState({channels: data.channels, channelMap});
+            })
         
     }
     loadItemsStatus() {
         fetch('/api/status')
             .then(res => res.json())
             .then((res) => {
-                console.log(res);
+                // console.log(res);
                 this.setState({itemsStatus: res});
             })
     }
@@ -66,7 +82,7 @@ module.exports = class Dashboard extends Component {
         fetch("/api/getItems")
             .then(res => res.json())
             .then(items => {
-                console.log(items);
+                // console.log(items);
                 this.setState({items: items});
             })
     }
@@ -115,7 +131,7 @@ module.exports = class Dashboard extends Component {
             let item = this.state.items[i];
             let row = <tr key={i}>
                 <td>{item.name}</td>
-                <td>{item.channel}</td>
+                <td>{this.state.channelMap[item.channel]}</td>
                 <td>{item.command_ga}</td>
                 <td>{item.feedback_ga}</td>
                 <td>{this.state.itemsStatus[item.name] == 'ON' ? 
@@ -124,6 +140,13 @@ module.exports = class Dashboard extends Component {
                 <td><Button color="primary" onClick={this.onEdit(i)}>Edit</Button> <Button onClick={this.onDelete(i)} color="Danger">Delete</Button></td>
             </tr>
             tableBody.push(row);
+        }
+        let channelsComponent = [];
+        let option = <option value={''} key={-1}>Select Channel</option>
+        channelsComponent.push(option);
+        for (let i = 0; i < this.state.channels.length; i++) {
+            let option = <option value={this.state.channels[i].id} key={i}>{this.state.channels[i].name}</option>
+            channelsComponent.push(option);
         }
 
         return <div className="animated fadeIn">
@@ -163,7 +186,10 @@ module.exports = class Dashboard extends Component {
                         <Label>Item Name</Label>
                         <Input value={this.state.editItem.name} onChange={this.onChangeItem("name")}></Input>
                         <Label>Channel</Label>
-                        <Input value={this.state.editItem.channel} onChange={this.onChangeItem("channel")}></Input>
+                        {/* <Input value={this.state.editItem.channel} onChange={this.onChangeItem("channel")}></Input> */}
+                        <Input type="select" value={this.state.editItem.channel} onChange={this.onChangeItem("channel")}>
+                            {channelsComponent}
+                        </Input>
                         <Label>Command Group Address</Label>
                         <Input value={this.state.editItem.command_ga} onChange={this.onChangeItem("command_ga")}></Input>
                         <Label>Feedback Group Address</Label>
@@ -194,7 +220,7 @@ module.exports = class Dashboard extends Component {
         this.setState({editItem});
     }
     onClickAddItem = () => {
-        this.setState({editItem: this.newItem});
+        this.setState({editItem: Object.assign({}, this.newItem)});
         this.toggleOpenDetail();
     }
     toggleOpenDetail() {

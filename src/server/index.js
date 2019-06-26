@@ -13,13 +13,13 @@ const ItemManager = new Item();
 const KNXConnectorClass = require('./knxconnector');
 const KNXConnector = new KNXConnectorClass(ItemManager);
 
-
 const StompClient = require('./stomp_client');
 const stompClient = new StompClient();
 stompClient.connect();
 
 const Setting = require('./setting');
 const setting = new Setting();
+const request = require('request');
 
 app.use(express.static('dist'));
 app.use(bodyParser.json({ limit: "50mb" }));
@@ -98,5 +98,25 @@ app.post('/api/setting/update', (req, res) => {
     setting.setSetting(data)
         .then((value) => {
             res.send(value);
+        })
+})
+
+app.get('/api/channels', (req, res) => {
+    setting.getSetting()
+        .then((value) => {
+            var options = { method: 'POST',
+            url: 'http://vsolution.vn:8080/horeca-api/api/device/notoken/reload',
+            headers: 
+            {
+                Host: 'vsolution.vn:8080',
+                Accept: '*/*',
+                'Content-Type': 'application/json' },
+            body: { username: `${value.hotelCode}/${value.hubCode}`, passcode: value.passcode },
+            json: true };
+
+            request(options, function (error, response, body) {
+            if (error) throw new Error(error);
+                res.send(body);
+            });
         })
 })

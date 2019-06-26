@@ -24,7 +24,7 @@ import DefaultHeader from './DefaultHeader';
 import Cookie from 'js-cookie';
 
 class DefaultLayout extends Component {
-  render() {
+  componentDidMount() {
     let sessionId = Cookie.get("sessionId");
     if (!sessionId){
       this.props.history.push('/login');
@@ -37,8 +37,9 @@ class DefaultLayout extends Component {
           }
         })
     }
+  }
+  render() {
     return (
-      
       <div className="app">
         <AppHeader fixed>
           <DefaultHeader />
