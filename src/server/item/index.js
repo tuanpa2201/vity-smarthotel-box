@@ -1,5 +1,5 @@
 const storage = require('node-persist');
-module.exports = class ItemManager {
+class ItemManager {
     constructor() {
         this.initStorage;
         this.statusByName = {};
@@ -24,6 +24,16 @@ module.exports = class ItemManager {
         }
         return undefined;
     }
+    async getItemByChannel(channel) {
+        let items = await this.getItems();
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].channel == channel) {
+                return items[i];
+            }
+        }
+        return undefined;
+    }
+
     async getItemByFeedbackGA(ga) {
         let items = await this.getItems();
         for (let i = 0; i < items.length; i++) {
@@ -70,3 +80,5 @@ module.exports = class ItemManager {
         return items;
     }
 }
+
+module.exports = new ItemManager();

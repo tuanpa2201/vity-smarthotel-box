@@ -23,8 +23,8 @@ class DefaultHeader extends Component {
       <React.Fragment>
         <AppSidebarToggler className="d-lg-none" display="md" mobile />
         <AppNavbarBrand
-          full={{ src: logo, width: 89, height: 25, alt: 'CoreUI Logo' }}
-          minimized={{ src: sygnet, width: 30, height: 30, alt: 'CoreUI Logo' }}
+          full={{ src: logo, width: 89, height: 25, alt: 'Vity Smarthotel Hub' }}
+          minimized={{ src: sygnet, width: 30, height: 30, alt: 'Vity Smarthotel Hub' }}
         />
         <AppSidebarToggler className="d-md-down-none" display="lg" />
 
@@ -51,7 +51,7 @@ class DefaultHeader extends Component {
           </NavItem> */}
           <AppHeaderDropdown direction="down">
             <DropdownToggle nav>
-              <img src={'assets/img/avatars/6.jpg'} className="img-avatar" alt="admin" />
+              <img src={'assets/img/avatars/1.jpg'} className="img-avatar" alt="admin" />
             </DropdownToggle>
             <DropdownMenu right style={{ right: 'auto' }} onClick={(() => {
               Cookies.remove("sessionId");

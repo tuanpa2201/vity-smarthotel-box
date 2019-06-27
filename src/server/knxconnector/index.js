@@ -1,8 +1,8 @@
 const knx = require('vity_knx');
 
-module.exports = class KNXConnector {
-    constructor(ItemManager) {
-        this.ItemManager = ItemManager;
+class KNXConnector {
+    constructor() {
+        this.ItemManager = require("../item");
         this.forceStop = false;
         this.isConnect = false;
         // process.on('uncaughtException', (err) => {
@@ -90,4 +90,6 @@ module.exports = class KNXConnector {
         if (this.isConnect)
            this.connection.Disconnect();
     }
-}
+};
+
+module.exports = new KNXConnector();

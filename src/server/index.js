@@ -7,14 +7,14 @@ const Authen = require('./authen');
 
 const authen = new Authen();
 
-const Item = require('./item');
-const ItemManager = new Item();
+const ItemManager = require('./item');
+// const ItemManager = new Item();
 
-const KNXConnectorClass = require('./knxconnector');
-const KNXConnector = new KNXConnectorClass(ItemManager);
+const KNXConnector = require('./knxconnector');
+// const KNXConnector = new KNXConnectorClass(ItemManager);
 
-const StompClient = require('./stomp_client');
-const stompClient = new StompClient();
+const stompClient = require('./stomp_client');
+// const stompClient = new StompClient();
 stompClient.connect();
 
 const Setting = require('./setting');

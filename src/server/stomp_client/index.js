@@ -1,8 +1,10 @@
 var Stomp = require('@stomp/stompjs');
 const Setting = require('../setting');
 const setting = new Setting();
+const knxconnector = require('../knxconnector');
+const ItemManager = require('../item');
 
-module.exports = class StompClient {
+class StompClient {
     connect() {
         Object.assign(global, { WebSocket: require('ws') });
         if (typeof TextEncoder !== 'function') {
@@ -33,7 +35,17 @@ module.exports = class StompClient {
                     console.log("Reload config", res.body);
                 });
                 this.client.subscribe(`/device/${res.body}/control`, (res) => {
-                    console.log("Control", res.body);
+                    let data = JSON.parse(res.body);
+                    console.log(data);
+                    ItemManager.getItemByChannel(data.id)
+                    .then(item => {
+                        if (!item) {
+                            // res.send("Item not found")
+                        } else {
+                            startSceen(item, data);
+                            // flutter(item.command_ga, 3000);
+                        }
+                    })
                 });
                 // this.client.publish({destination: `/horeca/device/${res.body}/reload`, body: JSON.stringify({ "username": `AKGR/H001`, "passcode": "123456" })})
             })
@@ -47,6 +59,55 @@ module.exports = class StompClient {
             // Compliant brokers will terminate the connection after any error
             console.log('Broker reported error: ' + frame.headers['message']);
             console.log('Additional details: ' + frame.body);
+            this.client.deactivate();
+            this.client.activate();
         };
     }
 }
+
+const alertTimerMap = {};
+const finishTimerMap = {};
+
+function startSceen(item, data) {
+    knxconnector.setValue(item.command_ga, 1);
+    if (data.alert > 0) {
+        let timer = alertTimerMap[item.channel];
+        if (timer) {
+            clearTimeout(timer);
+        }
+        timer = setTimeout(() => {
+            flutter(item.command_ga, 3000);
+            // knxconnector.setValue(item.command_ga, 0);
+            delete alertTimerMap[item.channel];
+        }, data.alert);
+        alertTimerMap[item.channel] = timer;
+    }
+    if (data.finish > 0) {
+        let timer = finishTimerMap[item.channel];
+        if (timer) {
+            clearTimeout(timer);
+        }
+        timer = setTimeout(() => {
+            knxconnector.setValue(item.command_ga, 0);
+            delete finishTimerMap[item.channel];
+        }, data.alert);
+        finishTimerMap[item.channel] = timer;
+    }
+}
+
+function flutter(ga, time) {
+    let startTime = (new Date()).getMilliseconds();
+    let value = 0;
+    let timer = setInterval(() => {
+        knxconnector.setValue(ga, value);
+        if (value == 0) {
+            value = 1;
+        } else value = 0;
+        let currentTime = (new Date()).getMilliseconds();
+        if (currentTime - startTime > time)
+            clearInterval(timer);
+    }, 500);
+    
+}
+
+module.exports = new StompClient();
