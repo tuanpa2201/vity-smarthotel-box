@@ -129,14 +129,18 @@ module.exports = class Dashboard extends Component {
         let tableBody = [];
         for (let i = 0; i < this.state.items.length; i++) {
             let item = this.state.items[i];
+            let checkedProp = {};
+            if (this.state.itemsStatus[item.name] == 'ON') {
+                checkedProp.checked = true;
+            }
             let row = <tr key={i}>
                 <td>{item.name}</td>
                 <td>{this.state.channelMap[item.channel]}</td>
                 <td>{item.command_ga}</td>
                 <td>{item.feedback_ga}</td>
-                <td>{this.state.itemsStatus[item.name] == 'ON' ? 
-                <AppSwitch className={'mx-1 switch-lg'} variant={'pill'} color={'success'} outline={'alt'} label checked onClick={this.toggleItemStatus(i)}/>: 
-                <AppSwitch className={'mx-1 switch-lg'} variant={'pill'} color={'success'} outline={'alt'} label onClick={this.toggleItemStatus(i)}/>}</td>
+                <td>
+                    <AppSwitch className={'mx-1 switch-lg'} variant={'pill'} color={'success'} outline={'alt'} label onClick={this.toggleItemStatus(i)} {...checkedProp}/>
+                </td>
                 <td><Button color="primary" onClick={this.onEdit(i)}>Edit</Button> <Button onClick={this.onDelete(i)} color="Danger">Delete</Button></td>
             </tr>
             tableBody.push(row);
