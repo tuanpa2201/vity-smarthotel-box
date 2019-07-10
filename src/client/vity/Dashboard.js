@@ -123,6 +123,10 @@ module.exports = class Dashboard extends Component {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({itemName: this.state.items[index].name, value: this.state.itemsStatus[this.state.items[index].name] == 'ON' ? "OFF" : 'ON'})
         })
+        .then((res) => res.text())
+        .then((res) => {
+            console.log(res);
+        })
     }
 
     render() {

@@ -78,6 +78,7 @@ function startSceen(item, data) {
     //     return;
     console.log(data);
     knxconnector.setValue(item.command_ga, 1);
+
     if (data.alert > 0) {
         let timer = alertTimerMap[item.channel];
         if (timer) {
@@ -112,8 +113,10 @@ function flutter(ga, time) {
             value = 1;
         } else value = 0;
         let currentTime = (new Date()).getMilliseconds();
-        if (currentTime - startTime > time)
+        if (currentTime - startTime > time) {
             clearInterval(timer);
+            knxconnector.setValue(ga, 1);
+        }
     }, 500);
     
 }
